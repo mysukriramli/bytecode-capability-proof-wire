@@ -1,0 +1,8 @@
+{
+  "chain_id": 1,
+  "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "contract_name": "Tether_USD",
+  "proxy_standard": "NONE",
+  "merkle_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "updated_at_utc": "2026-10-27T01:04:52.356990+00:00"
+}

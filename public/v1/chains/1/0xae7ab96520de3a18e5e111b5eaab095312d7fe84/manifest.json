@@ -1,0 +1,8 @@
+{
+  "chain_id": 1,
+  "address": "0xae7ab96520de3a18e5e111b5eaab095312d7fe84",
+  "contract_name": "Lido_stETH",
+  "proxy_standard": "NONE",
+  "merkle_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "updated_at_utc": "2026-10-27T01:04:52.356990+00:00"
+}

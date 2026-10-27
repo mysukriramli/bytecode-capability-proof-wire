@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "ContractCapabilityProof",
+  "type": "object",
+  "properties": {
+    "chain_id": {
+      "type": "integer"
+    },
+    "address": {
+      "type": "string"
+    },
+    "merkle_root": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "guard_type": {
+            "type": "string"
+          },
+          "effects": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "selector",
+          "operation",
+          "guard_type",
+          "effects"
+        ]
+      }
+    }
+  },
+  "required": [
+    "chain_id",
+    "address",
+    "merkle_root",
+    "capabilities"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "wire": "bytecode-capability-proof-wire",
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-27T01:04:52.356990+00:00",
+  "source_cursor": "evm-runtime-disassembly",
+  "freshness_slo_seconds": 21600,
+  "artifacts": [
+    "today.json",
+    "capabilities.parquet",
+    "llms.txt",
+    "v1/schema.json",
+    "v1/deltas/today.json"
+  ],
+  "coverage": {
+    "chains": [
+      1
+    ],
+    "monitored_contracts": 4
+  },
+  "limitations": [
+    "Conservative abstract opcode interpretation",
+    "Assembly jumps with dynamic stack targets marked unresolved"
+  ]
+}

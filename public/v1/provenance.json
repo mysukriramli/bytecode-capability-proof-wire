@@ -1,0 +1,7 @@
+{
+  "generator": "bytecode-capability-proof-wire",
+  "methodology": "conservative_abstract_interpretation",
+  "evm_opcodes_version": "cancun",
+  "merkle_algorithm": "sha256",
+  "generated_at_utc": "2026-10-27T01:04:52.356990+00:00"
+}
