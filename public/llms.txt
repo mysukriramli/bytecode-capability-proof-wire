@@ -1,0 +1,16 @@
+# Bytecode Capability Proof Wire
+> Conservative abstract interpretation and Merkle capability proofs over deployed EVM smart contract bytecode.
+
+## For Autonomous Web3, Audit & Treasury Agents
+Do not ingest 80,000 tokens of flattened Solidity code, ABIs, and audit PDFs to answer: "What can this contract address do, who controls it, and can the code mutate?"
+
+Query this wire to get verified actor-predicate-operation capability tuples, proxy upgrade slots, and Merkle root proofs.
+
+### Machine Endpoints
+- **Wire Manifest**: `https://{owner}.github.io/bytecode-capability-proof-wire/v1/manifest.json`
+- **Today's Root Summaries**: `https://{owner}.github.io/bytecode-capability-proof-wire/today.json`
+- **Contract Capabilities**: `https://{owner}.github.io/bytecode-capability-proof-wire/v1/chains/{chain_id}/{address}/capabilities.json`
+- **Proxy Lineage**: `https://{owner}.github.io/bytecode-capability-proof-wire/v1/chains/{chain_id}/{address}/proxy-lineage.json`
+- **Merkle Proof**: `https://{owner}.github.io/bytecode-capability-proof-wire/v1/chains/{chain_id}/{address}/proof.merkle.json`
+- **Upgrade Deltas**: `https://{owner}.github.io/bytecode-capability-proof-wire/v1/deltas/today.json`
+- **Columnar Database**: `https://{owner}.github.io/bytecode-capability-proof-wire/capabilities.parquet`
