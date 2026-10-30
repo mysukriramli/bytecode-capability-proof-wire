@@ -1,7 +1,7 @@
 {
   "wire": "bytecode-capability-proof-wire",
   "schema_version": "1.0.0",
-  "generated_at": "2026-10-30T06:25:39.223579+00:00",
+  "generated_at": "2026-10-30T13:30:54.375494+00:00",
   "source_cursor": "evm-runtime-disassembly",
   "freshness_slo_seconds": 21600,
   "artifacts": [
