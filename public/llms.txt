@@ -1,5 +1,5 @@
 # Bytecode Capability Proof Wire
-> Last Sync: 2026-10-30T22:38:34.627666+00:00 UTC
+> Last Sync: 2026-10-31T06:16:12.085207+00:00 UTC
 > Optimization: Abstract interpretation over EVM runtime bytecode.
 > Delivers deterministic actor-operation-state capability tuples and Merkle proofs (94% to 99% context reduction).
 
