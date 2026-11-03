@@ -3,5 +3,5 @@
   "methodology": "conservative_abstract_interpretation",
   "evm_opcodes_version": "cancun",
   "merkle_algorithm": "sha256",
-  "generated_at_utc": "2026-11-03T07:14:05.164228+00:00"
+  "generated_at_utc": "2026-11-03T19:48:12.854949+00:00"
 }
