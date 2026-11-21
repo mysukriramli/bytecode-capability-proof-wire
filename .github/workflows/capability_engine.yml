@@ -64,20 +64,22 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Ensure public directory is non-empty
+      - name: Package public directory for Pages
         run: |
           mkdir -p public
           touch public/.nojekyll
-          # Guarantee at least one visible file so tar does not skip the directory
           if [ -z "$(ls -A public | grep -v '^\.')" ]; then
             echo "Bytecode Capability Proof Engine - Active ($(date -u))" > public/index.html
           fi
-          ls -la public
+          tar -cvf /tmp/artifact.tar -C public .
 
       - name: Upload Artifacts to Pages
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          path: 'public'
+          name: github-pages
+          path: /tmp/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Deploy to GitHub Pages
         id: deployment
