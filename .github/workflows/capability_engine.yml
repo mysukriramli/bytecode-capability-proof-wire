@@ -17,9 +17,11 @@ concurrency:
 jobs:
   analyze-and-publish:
     runs-on: ubuntu-24.04
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -29,10 +31,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
       - name: Restore DuckDB Database Cache
         uses: actions/cache@v4
@@ -43,15 +48,21 @@ jobs:
             capability-db-
 
       - name: Execute Bytecode Capability Engine
-        run: python capability_engine.py
+        run: |
+          python capability_engine.py
 
       - name: Commit Historical Ledger and Lineage
         run: |
           git config user.name "capability-bot[bot]"
           git config user.email "capability-bot@users.noreply.github.com"
 
-          # Stage ledger, parquet, and generated public API payloads
-          git add ledger/ data/capabilities.parquet public/
+          mkdir -p ledger
+          mkdir -p data
+          mkdir -p public
+
+          git add ledger/ || true
+          git add data/capabilities.parquet || true
+          git add public/ || true
 
           if git diff --staged --quiet; then
             echo "No capability roots or upgrades to commit."
@@ -64,23 +75,71 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Package public directory for Pages
+      - name: Ensure Pages Output Exists
         run: |
           mkdir -p public
           touch public/.nojekyll
-          if [ -z "$(ls -A public | grep -v '^\.')" ]; then
-            echo "Bytecode Capability Proof Engine - Active ($(date -u))" > public/index.html
-          fi
-          tar -cvf /tmp/artifact.tar -C public .
 
-      - name: Upload Artifacts to Pages
-        uses: actions/upload-artifact@v4
+          if [ -z "$(find public -type f ! -name '.nojekyll')" ]; then
+            cat > public/index.html <<EOF
+            <!doctype html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>Bytecode Capability Proof Engine</title>
+              <style>
+                body{
+                  font-family:system-ui,sans-serif;
+                  max-width:1000px;
+                  margin:40px auto;
+                  padding:20px;
+                  line-height:1.6;
+                }
+                h1{
+                  color:#2563eb;
+                }
+                .card{
+                  border:1px solid #ddd;
+                  border-radius:12px;
+                  padding:20px;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Bytecode Capability Proof Engine</h1>
+
+              <div class="card">
+                <p>Deployment Successful</p>
+                <p>Workflow: Bytecode Capability Proof Engine</p>
+                <p>Generated: $(date -u)</p>
+              </div>
+            </body>
+            </html>
+            EOF
+          fi
+
+      - name: Verify Generated Site
+        run: |
+          echo "===== PUBLIC DIRECTORY ====="
+          ls -lah public
+
+          echo
+          echo "===== FILES ====="
+          find public -type f
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: /tmp/artifact.tar
-          retention-days: 1
-          if-no-files-found: error
+          path: public
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Save Updated Database Cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data/capabilities.db
+          key: capability-db-${{ github.run_id }}
