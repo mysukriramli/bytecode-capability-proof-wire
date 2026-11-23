@@ -2,7 +2,7 @@ name: Bytecode Capability Proof Engine
 
 on:
   schedule:
-    - cron: '43 */6 * * *'
+    - cron: "43 */6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -35,6 +35,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
+
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
@@ -78,45 +80,11 @@ jobs:
       - name: Ensure Pages Output Exists
         run: |
           mkdir -p public
+
           touch public/.nojekyll
 
-          if [ -z "$(find public -type f ! -name '.nojekyll')" ]; then
-            cat > public/index.html <<EOF
-            <!doctype html>
-            <html lang="en">
-            <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <title>Bytecode Capability Proof Engine</title>
-              <style>
-                body{
-                  font-family:system-ui,sans-serif;
-                  max-width:1000px;
-                  margin:40px auto;
-                  padding:20px;
-                  line-height:1.6;
-                }
-                h1{
-                  color:#2563eb;
-                }
-                .card{
-                  border:1px solid #ddd;
-                  border-radius:12px;
-                  padding:20px;
-                }
-              </style>
-            </head>
-            <body>
-              <h1>Bytecode Capability Proof Engine</h1>
-
-              <div class="card">
-                <p>Deployment Successful</p>
-                <p>Workflow: Bytecode Capability Proof Engine</p>
-                <p>Generated: $(date -u)</p>
-              </div>
-            </body>
-            </html>
-            EOF
+          if [ ! -f public/index.html ]; then
+            echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bytecode Capability Proof Engine</title></head><body><h1>Bytecode Capability Proof Engine</h1><p>Deployment Active</p></body></html>' > public/index.html
           fi
 
       - name: Verify Generated Site
@@ -124,9 +92,13 @@ jobs:
           echo "===== PUBLIC DIRECTORY ====="
           ls -lah public
 
-          echo
+          echo ""
           echo "===== FILES ====="
           find public -type f
+
+          echo ""
+          echo "===== INDEX PREVIEW ====="
+          head -n 20 public/index.html || true
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
@@ -138,8 +110,8 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Save Updated Database Cache
-        uses: actions/cache/save@v4
         if: always()
+        uses: actions/cache/save@v4
         with:
           path: data/capabilities.db
           key: capability-db-${{ github.run_id }}
