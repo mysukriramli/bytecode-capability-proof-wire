@@ -133,17 +133,10 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Verify Deployment Payload
-        run: |
-          echo "Files prepared for deployment:"
-          find public -type f
-          test -f public/index.html
-          test -s public/index.html
-
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public
+          path: public
 
   deploy:
     name: Deploy to GitHub Pages
