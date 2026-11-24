@@ -15,13 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  analyze-and-publish:
-    name: Analyze and Publish
+  analyze-and-build:
+    name: Analyze and Build
     runs-on: ubuntu-24.04
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout Repository
@@ -37,7 +33,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
@@ -53,6 +48,7 @@ jobs:
 
       - name: Execute Capability Engine
         run: |
+          mkdir -p data
           if [ -f capability_engine.py ]; then
             python capability_engine.py
           else
@@ -61,61 +57,61 @@ jobs:
 
       - name: Create Pages Directory
         run: |
-          rm -rf public
-
           mkdir -p public
-
           touch public/.nojekyll
 
       - name: Generate Fallback Dashboard
         run: |
-          echo '<!DOCTYPE html>' > public/index.html
-          echo '<html lang="en">' >> public/index.html
-          echo '<head>' >> public/index.html
-          echo '<meta charset="UTF-8">' >> public/index.html
-          echo '<meta name="viewport" content="width=device-width, initial-scale=1">' >> public/index.html
-          echo '<title>Bytecode Capability Proof Engine</title>' >> public/index.html
-          echo '<style>' >> public/index.html
-          echo 'body{' >> public/index.html
-          echo 'background:#0b1220;' >> public/index.html
-          echo 'color:#ffffff;' >> public/index.html
-          echo 'font-family:system-ui,sans-serif;' >> public/index.html
-          echo 'margin:40px;' >> public/index.html
-          echo '}' >> public/index.html
-          echo '.card{' >> public/index.html
-          echo 'max-width:900px;' >> public/index.html
-          echo 'margin:auto;' >> public/index.html
-          echo 'padding:24px;' >> public/index.html
-          echo 'border-radius:12px;' >> public/index.html
-          echo 'background:#111827;' >> public/index.html
-          echo '}' >> public/index.html
-          echo 'h1{' >> public/index.html
-          echo 'color:#60a5fa;' >> public/index.html
-          echo '}' >> public/index.html
-          echo '</style>' >> public/index.html
-          echo '</head>' >> public/index.html
-          echo '<body>' >> public/index.html
-          echo '<div class="card">' >> public/index.html
-          echo '<h1>Bytecode Capability Proof Engine</h1>' >> public/index.html
-          echo '<p>Capability analysis pipeline active.</p>' >> public/index.html
-          echo '<p>Proof ledger generated successfully.</p>' >> public/index.html
-          echo '<p>Published automatically by GitHub Actions.</p>' >> public/index.html
-          echo '</div>' >> public/index.html
-          echo '</body>' >> public/index.html
-          echo '</html>' >> public/index.html
+          if [ ! -s public/index.html ]; then
+            cat << 'EOF' > public/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Bytecode Capability Proof Engine</title>
+            <style>
+              body {
+                background: #0b1220;
+                color: #ffffff;
+                font-family: system-ui, sans-serif;
+                margin: 40px;
+              }
+              .card {
+                max-width: 900px;
+                margin: auto;
+                padding: 24px;
+                border-radius: 12px;
+                background: #111827;
+              }
+              h1 {
+                color: #60a5fa;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>Bytecode Capability Proof Engine</h1>
+              <p>Capability analysis pipeline active.</p>
+              <p>Proof ledger generated successfully.</p>
+              <p>Published by GitHub Actions.</p>
+            </div>
+          </body>
+          </html>
+          EOF
+          fi
 
       - name: Validate Pages Payload
         run: |
           set -e
-
           test -d public
           test -f public/index.html
           test -s public/index.html
 
-          echo "===== PUBLIC FILES ====="
+          echo "===== PUBLIC ====="
           find public -type f
 
-          echo "===== FILE SIZE ====="
+          echo "===== SIZE ====="
           wc -c public/index.html
 
       - name: Commit Historical Ledger
@@ -127,17 +123,11 @@ jobs:
           [ -d public ] && git add public || true
 
           if git diff --cached --quiet; then
-
             echo "No capability proof changes."
-
           else
-
-            git commit -m "chore(history): record capability proof updates [skip ci]" || true
-
-            git pull --rebase --autostash origin "${{ github.ref_name }}" || true
-
-            git push origin HEAD:${{ github.ref_name }} || true
-
+            git commit -m "chore(history): record capability proof updates [skip ci]"
+            git pull --rebase --autostash origin "${{ github.ref_name }}"
+            git push origin "HEAD:${{ github.ref_name }}"
           fi
 
       - name: Configure GitHub Pages
@@ -145,10 +135,8 @@ jobs:
 
       - name: Verify Deployment Payload
         run: |
-          echo "===== DEPLOYMENT PAYLOAD ====="
-
+          echo "Files prepared for deployment:"
           find public -type f
-
           test -f public/index.html
           test -s public/index.html
 
@@ -157,14 +145,21 @@ jobs:
         with:
           path: ./public
 
-      - name: Deploy to GitHub Pages
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: analyze-and-build
+    runs-on: ubuntu-24.04
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Deployment Summary
         run: |
-          echo "===================================="
-          echo "Bytecode Capability Proof Engine"
           echo "Deployment Complete"
-          echo "===================================="
-          echo "${{ steps.deployment.outputs.page_url }}"
+          echo "URL: ${{ steps.deployment.outputs.page_url }}"
